@@ -4,8 +4,8 @@ class Rp(object):
     def __init__(self, raw, replace, **kwargs):
         self.obj = replace
         self.raw = raw
-       
-     def __call__(self, *args, **kwargs):
+
+    def __call__(self, *args, **kwargs):
         if not NET_INITTED:
             return self.raw(*args, **kwargs)
         for stack in traceback.walk_stack(None):
