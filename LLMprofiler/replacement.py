@@ -1,4 +1,4 @@
-﻿import pytorch
+﻿import torch
 
 class Rp(object):
     def __init__(self, raw, replace, **kwargs):
