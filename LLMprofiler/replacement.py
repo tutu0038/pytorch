@@ -35,8 +35,8 @@ from torchtext.vocab import build_vocab_from_iterator
 
 #train_iter = WikiText2(split='train')
 #tokenizer = get_tokenizer('basic_english')
-vocab = build_vocab_from_iterator(map(tokenizer, train_iter), specials=['<unk>'])
-vocab.set_default_index(vocab['<unk>'])
+#vocab = build_vocab_from_iterator(map(tokenizer, train_iter), specials=['<unk>'])
+#vocab.set_default_index(vocab['<unk>'])
 
 def data_process(raw_text_iter: dataset.IterableDataset) -> Tensor:
     """Converts raw text into a flat Tensor."""
@@ -91,7 +91,7 @@ def data_process(raw_text_iter: dataset.IterableDataset) -> Tensor:
 #val_data = batchify(val_data, eval_batch_size)
 #test_data = batchify(test_data, eval_batch_size)
 
-ntokens = len(vocab)  # size of vocabulary
+ntokens = 20  # size of vocabulary
 emsize = 200  # embedding dimension
 d_hid = 200  # dimension of the feedforward network model in ``nn.TransformerEncoder``
 nlayers = 2  # number of ``nn.TransformerEncoderLayer`` in ``nn.TransformerEncoder``
