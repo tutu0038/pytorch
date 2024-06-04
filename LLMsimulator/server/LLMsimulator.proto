@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package communicator;
+
+message HelloRequest {
+  string name = 0;
+}
+
+message HelloReply {
+  string message = 0;
+}
+
+enum  ProfilerType{
+  Linear = 1;
+  multi_head_attention_forward = 2
+}
+
+message ProfilerInput{
+	int32  rank = 0;
+	double time = 1;
+  ProfilerType type = 2;
+}
+
+message ProfilerOutput{
+	bool success = 0;
+}
+
+enum  CommunicationType{
+  Allgather = 0;
+  Allreduce = 1；
+  Alltoall = 2;
+  Barrier = 3;
+  Broadcast = 4;
+  Scatter = 5;
+}
+
+message CommunicatorInput{
+  int32  rank = 1;
+	double time = 2;
+  CommunicationType type = 3;
+}
+
+message CommunicatorOutput{
+  string success = 1;
+}
+
+service Greeter {
+  // test
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+
+  // profiler
+  rpc profiler (ProfilerInput) returns (ProfilerOutput) {}
+
+  //communicator
+  rpc communicator (CommunicatorInput) returns (CommunicatorOutput) {}
+}
