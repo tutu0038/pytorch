@@ -12,7 +12,8 @@ message HelloReply {
 
 enum  ProfilerType{
   Linear = 1;
-  multi_head_attention_forward = 2
+  Multi_head_attention_forward = 2;
+  Dropout = 3;
 }
 
 message ProfilerInput{

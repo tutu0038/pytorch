@@ -9,7 +9,6 @@ import traceback
 from torch import nn, Tensor
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
-
 import sys
 import torch.distributed as dist
 import torch.nn as nn
@@ -39,21 +38,19 @@ import time
 def _bmm(raw, A, B):
     return B
     
-from server.helloworld_pb2 import LinearInput
-from server.helloworld_grpc import GreeterStub
+from server.profiler_pb2 import ProfilerInput
+from server.profiler_grpc import GreeterStub
 import asyncio
 from grpclib.client import Channel
 
-async def Linearasyn(r, t) -> None:
+async def commnicatorasync(r, t, tp) -> None:
     async with Channel('127.0.0.1', 50051) as channel:
         greeter = GreeterStub(channel)
-        reply = await greeter.Linear(LinearInput(rank = r, time = t))
+        reply = await greeter.profiler(ProfilerInput(rank = r, time = t, type = tp))
         print(reply.success)
 
 def _Linear(raw ,input ,weight , bias):
-    global _Time
     global rank
-    _Time += 0
     dim = input.dim()
     outdim = [0] * dim
     total = 1
@@ -62,22 +59,18 @@ def _Linear(raw ,input ,weight , bias):
         total *= outdim[i]
     outdim[dim - 1] = weight.shape[0]
     output = torch.ones(outdim, requires_grad = True)
-    time = total * weight.shape[0] / C
-    _Time += time
-    asyncio.run(Linearasyn(rank, time))
+
+    time = total * weight.shape[0]
+    communicateType = 0
+    asyncio.run(commnicatorasync(rank, time, communicateType))
+
     return output
 
 def _dropout(raw ,input ,p , training, inplace):
-    global _Time
-    _Time += 0
+    global rank
+    asyncio.run(commnicatorasync(rank, time, communicateType))
+    communicateType = 2
     return input
-
-async def _multi_head_attention_forwardasync(r, t) -> None:
-    async with Channel('127.0.0.1', 50051) as channel:
-        greeter = GreeterStub(channel)
-        reply = await greeter.attention(LinearInput(rank = r, time = t))
-        print(reply.success)
-
 
 from typing import Optional
 def _multi_head_attention_forward(raw,
@@ -110,7 +103,8 @@ def _multi_head_attention_forward(raw,
     global _Time
     time = query.shape[0] *  query.shape[1] *  query.shape[2] * 3 / C
     _Time += time
-    asyncio.run(_multi_head_attention_forwardasync(rank, time))
+    tp = 2
+    asyncio.run(commnicatorasync(rank, time, tp))
     return query, None
 
 def init(rank0):
@@ -119,6 +113,5 @@ def init(rank0):
     torch.sigmoid = Rp(torch.sigmoid, _sigmoid)
     torch.bmm = Rp(torch.bmm, _bmm)
     nn.functional.linear = Rp(nn.functional.linear, _Linear)
-    #nn.functional.dropout = Rp(nn.functional.dropout, _dropout)
+    nn.functional.dropout = Rp(nn.functional.dropout, _dropout)
     nn.functional.multi_head_attention_forward = Rp(nn.functional.multi_head_attention_forward, _multi_head_attention_forward)
-    #nn.functional.Conv2d = Rp(nn.functional.Conv2d, _Conv2d)

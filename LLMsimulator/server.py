@@ -31,7 +31,17 @@ class Greeter(GreeterBase):
          print(f'RANK {request.rank} Runs communicator spend {request.time}')
          await stream.send_message(CommunicatorOutput(success = True))
 
+class GPU:
+    int running
+    bool barrier
+    
+class Cluster:
+    GPU g[16]
+    int time
 
+    def update(rank, time):
+        g[rank].running += time
+      
 async def main(*, host: str = '127.0.0.1', port: int = 50051) -> None:
     server = Server([Greeter()])
     # Note: graceful_exit isn't supported in Windows
